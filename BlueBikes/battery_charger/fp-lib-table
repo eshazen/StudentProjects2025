@@ -1,0 +1,4 @@
+(fp_lib_table
+  (version 7)
+  (lib (name "CUI_PJ-002B")(type "KiCad")(uri "${KIPRJMOD}/CUI_PJ-002B")(options "")(descr ""))
+)
