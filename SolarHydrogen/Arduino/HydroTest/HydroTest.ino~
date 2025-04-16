@@ -1,0 +1,89 @@
+//
+// SerialCommandExample
+//
+// Example of Arduino-style serial command interpreter in the style of the EDF AVR code
+// Receive command strings with backspace-editing and parse string into tokens
+//
+
+// NOTE:  uses external files my_gets.ino and parse.ino
+
+#include <TimerOne.h>
+#include <ctype.h>
+#include <LiquidCrystal.h>
+
+static const int pwmPin = 9;
+
+// initialize the library by associating any needed LCD interface pin
+// with the arduino pin number it is connected to
+const int rs = 8, en = 12, d4 = 4, d5 = 5, d6 = 6, d7 = 7;
+LiquidCrystal lcd(rs, en, d4, d5, d6, d7);
+
+void setPWM( int p) {
+  if( p < 1)
+    p = 1;
+  Timer1.pwm( pwmPin, p*13);
+  Serial.print("Set PWM to ");
+  Serial.println(p*13);
+}
+
+void setup() {
+  // initialize serial communications at 9600 bps (though the speed seems to be ignored)
+  Serial.begin(9600);
+  Timer1.initialize(10);  // 10 us = 100 kHz
+  setPWM( 1);
+  // set up the LCD's number of columns and rows:
+  lcd.begin(16, 2);
+  // Print a message to the LCD.
+  lcd.print("Hydrogenerator V0.1");
+}
+
+#define PWM_PIN 9
+
+// maximum number of command arguments to parse
+#define MAXARG 5
+
+// these are global so they are included in the report of variable size use
+static char buff[80];
+static char* argv[MAXARG];
+static unsigned iargv[MAXARG];
+
+void loop() {
+
+  // send a prompt, wait for it to be transmitted
+  Serial.write(">");    
+  Serial.flush();
+  
+  // read a ststring into buff with editing
+  my_gets( buff, sizeof(buff));
+  
+  // echo the string read
+  Serial.println( buff);
+
+  // parse into text and integer tokens (see parse.ino)
+  int n = parse( buff, argv, iargv, MAXARG);
+  byte cmd = *argv[0];
+  int pwm;
+
+  if( n) {
+    if( isdigit( cmd)) {
+      setPWM( iargv[0]);
+    } else {
+      switch( toupper( cmd)) {
+      case 'P':
+	setPWM( iargv[1]);
+	break;
+      case 'A':
+	for( int i=0; i<6; i++) {
+	  unsigned a = analogRead( i);
+	  Serial.print(i);
+	  Serial.print(" = ");
+	  Serial.println(a);
+	}
+	break;
+      default:
+	Serial.println("What?");
+	break;
+      }
+    }    
+  }
+}
