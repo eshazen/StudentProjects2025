@@ -8,21 +8,32 @@
 #include <ctype.h>
 #include <LiquidCrystal.h>
 
-static const int pwmPin = 9;	// PWM pin (must be 9 or 10 for TimerOne library!)
+static const int pwmPin = 12;	// PWM pin (must be 9 or 10 for TimerOne library!)
 
 // LCD display wiring
-const int rs = 8, en = 12, d4 = 4, d5 = 5, d6 = 6, d7 = 7;
+// const int rs = 8, en = 12, d4 = 4, d5 = 5, d6 = 6, d7 = 7;
+const int rs = 8, en = 9, d4 = 4, d5 = 5, d6 = 6, d7 = 7;
 LiquidCrystal lcd(rs, en, d4, d5, d6, d7);
 
 // global variables
 static int pwm = 1;		// current PWM setting
 static int last_key = 0;	// last reading from keypad ADC
+static int i12;			// 12V current
 
 // expected analog values for pins on keypad
 // keys               down up   left right  sel
 static int keyz[] = { 253, 98,  405, 0,     636};
 #define NKEYZ (sizeof(keyz)/sizeof(keyz[0]))
 #define ABS(x) (((x)<0)?(-(x)):(x))
+
+int readADC( int ch, int navg) {
+  int sum = 0;
+  for( int i=0; i<navg; i++) {
+    sum += analogRead( ch);
+    delay(1);
+  }
+  return sum / navg;
+}
 
 // set the PWM to p where p is 1..2..3 etc and display
 // (actual value is 13x the passed value due to behavior of timer 1 at 100kHz)
@@ -79,6 +90,11 @@ void loop() {
     case 4:			// right
       break;
     case 5:			// sel
+      i12 = analogRead( 3);
+      lcd.setCursor(8, 1);
+      i12 = readADC( 3, 32);
+      lcd.print(i12);
+      lcd.print("   ");
       break;
     default:
       ;
