@@ -1,0 +1,5 @@
+#!/bin/bash
+#
+# capture 5s of video at 120fps
+#
+rpicam-vid --level 4.2 --framerate 120 --width 1280 --height 720 --save-pts timestamp.pts -o video.264 -t 5000 --denoise cdn_off -n
