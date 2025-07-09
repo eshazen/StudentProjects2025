@@ -1,0 +1,13 @@
+#!/bin/bash
+#
+ARGC=$#
+if [ $ARGC -ne 3 ]; then
+  echo "usage: $0 <framerate> <ms> <filename>"
+  exit;
+fi;  
+
+FPS=$1
+SECS=$2
+FNAM=$3
+
+rpicam-vid --level 4.2 --framerate $FPS --width 640 --height 480 --save-pts timestamp.pts -o $FNAM -t $SECS --denoise cdn_off -n
