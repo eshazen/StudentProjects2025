@@ -15,7 +15,7 @@
 			)
 		)
 		(property "Value" "H Bridge"
-			(at 19.304 9.652 0)
+			(at 14.732 9.144 0)
 			(effects
 				(font
 					(size 1.27 1.27)
